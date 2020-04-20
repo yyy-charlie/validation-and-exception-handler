@@ -13,15 +13,15 @@ import lombok.Getter;
 @Getter
 public class BaseResponse<T> {
 
-    private int id;
+    private int code;
 
     private String message;
 
     private T data;
 
-    public BaseResponse(ResponseCode responseCode) {
-        this.id = responseCode.getCode();
-        this.message = responseCode.getMessage();
+    public BaseResponse(ResponseCode responseCode,String message) {
+        this.code = responseCode.getCode();
+        this.message = message;
     }
 
     public BaseResponse(T data) {
@@ -29,7 +29,7 @@ public class BaseResponse<T> {
     }
 
     public BaseResponse(ResponseCode responseCode, T data) {
-        this.id = responseCode.getCode();
+        this.code = responseCode.getCode();
         this.message = responseCode.getMessage();
         this.data = data;
     }

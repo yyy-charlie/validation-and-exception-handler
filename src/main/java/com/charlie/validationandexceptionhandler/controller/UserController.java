@@ -1,5 +1,6 @@
 package com.charlie.validationandexceptionhandler.controller;
 
+import com.charlie.validationandexceptionhandler.common.Const;
 import com.charlie.validationandexceptionhandler.entity.User;
 import com.charlie.validationandexceptionhandler.service.UserService;
 import com.charlie.validationandexceptionhandler.vo.BaseResponse;
@@ -8,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ycn
@@ -19,19 +22,37 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("user")
 public class UserController {
+    @Autowired
+    private HttpServletRequest request;
 
     @Autowired
     private UserService userService;
 
     @RequestMapping("register")
     public User registerUser(@RequestBody @Validated(User.Register.class) User user) {
-        return userService.addUser(user);
+        request.setAttribute(Const.RETURN_MESSAGE, "新增用户信息");
+        return null;
+//        return userService.addUser(user);
     }
 
     @RequestMapping("update")
-    public Boolean updateUser(@RequestBody @Validated(User.Update.class) User user, HttpServletRequest request) {
-        request.setAttribute("message","更新用户信息");
+    public Boolean updateUser(@RequestBody @Validated(User.Update.class) User user) {
+        request.setAttribute(Const.RETURN_MESSAGE, "更新用户信息");
         return userService.updateUser(user);
+    }
+
+    @RequestMapping("delete")
+    public Boolean deleteUser(@RequestBody @Validated(User.Update.class) User user) {
+        request.setAttribute(Const.RETURN_MESSAGE, "删除用户");
+        return false;
+    }
+
+    @RequestMapping("getByCondition")
+    public List<User> getUserByCondition(@RequestBody User user) {
+        request.setAttribute(Const.RETURN_MESSAGE, "根据条件获取用户信息");
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        return users;
     }
 
 }

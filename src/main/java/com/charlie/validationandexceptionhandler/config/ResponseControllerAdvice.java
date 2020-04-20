@@ -6,14 +6,15 @@ import com.charlie.validationandexceptionhandler.vo.BaseResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 
 /**
  * @author ycn
@@ -22,8 +23,7 @@ import javax.servlet.http.HttpServletRequest;
  * @Description TODO
  * @createTime 2020-04-19 18:30:00
  */
-@RestControllerAdvice(basePackages = {"com.charlie" +
-        ".validationandexceptionhandler.controller"})
+@RestControllerAdvice(basePackages = {"com.charlie.validationandexceptionhandler.controller"})
 public class ResponseControllerAdvice implements ResponseBodyAdvice {
 
     @Override
@@ -33,8 +33,10 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice {
     }
 
     @Override
-    public Object beforeBodyWrite(Object data, MethodParameter methodParameter,
-                                  MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public Object beforeBodyWrite(Object data, MethodParameter methodParameter,MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+        ServletServerHttpRequest request = (ServletServerHttpRequest) serverHttpRequest;
+        String message = (String) request.getServletRequest().getAttribute("message");
+
         // String类型不能直接包装
         if (String.class.equals(methodParameter.getGenericParameterType())) {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -43,11 +45,20 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice {
             } catch (JsonProcessingException e) {
                 throw new APIException("返回String类型错误");
             }
+            //布尔类型，返回true操作成功，返回false操作失败
         } else if (Boolean.class.equals(methodParameter.getGenericParameterType())) {
             if (Boolean.TRUE.equals(data)) {
-                return new BaseResponse<>(ResponseCode.Success);
+                return new BaseResponse<>(ResponseCode.Success, message + "成功");
             } else {
-                return new BaseResponse<>(ResponseCode.Failure);
+                return new BaseResponse<>(ResponseCode.Failure, message + "失败");
+            }
+        }
+        Method method = methodParameter.getMethod();
+        //不是get操作的方法返回null，该操作失败
+        if (method != null) {
+            String name = method.getName();
+            if (!name.startsWith("get") && data == null) {
+                return new BaseResponse<>(ResponseCode.Failure, message + "失败");
             }
         }
         return new BaseResponse<>(data);

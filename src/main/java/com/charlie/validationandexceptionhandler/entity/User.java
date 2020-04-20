@@ -17,13 +17,9 @@ import javax.validation.constraints.Size;
 @Data
 public class User {
 
-    public interface Register {
+    public interface Register {}
 
-    }
-
-    public interface Update {
-
-    }
+    public interface Update {}
 
     @NotNull(message = "用户ID不能为空", groups = Update.class)
     private Long id;
@@ -37,6 +33,6 @@ public class User {
     private String password;
 
     @NotNull(message = "邮箱不能为空",groups = Register.class)
-    @Email(message = "邮箱格式不对")
+    @Email(message = "邮箱格式不对",groups = Register.class)
     private String email;
 }
