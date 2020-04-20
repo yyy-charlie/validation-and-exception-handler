@@ -15,6 +15,7 @@ public class UserService {
 
     public User addUser(User user) {
         //调用mapper，此处省略
+        user.setId(343L);
         return user;
     }
 

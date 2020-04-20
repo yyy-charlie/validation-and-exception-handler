@@ -33,7 +33,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice {
     }
 
     @Override
-    public Object beforeBodyWrite(Object data, MethodParameter methodParameter,MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public Object beforeBodyWrite(Object data, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         ServletServerHttpRequest request = (ServletServerHttpRequest) serverHttpRequest;
         String message = (String) request.getServletRequest().getAttribute("message");
 
@@ -41,7 +41,8 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice {
         if (String.class.equals(methodParameter.getGenericParameterType())) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                return objectMapper.writeValueAsString(new BaseResponse<>(data));
+                ResponseCode.Success.setMessage(message + "成功");
+                return objectMapper.writeValueAsString(new BaseResponse<>(ResponseCode.Success, data));
             } catch (JsonProcessingException e) {
                 throw new APIException("返回String类型错误");
             }
@@ -57,10 +58,15 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice {
         //不是get操作的方法返回null，该操作失败
         if (method != null) {
             String name = method.getName();
-            if (!name.startsWith("get") && data == null) {
-                return new BaseResponse<>(ResponseCode.Failure, message + "失败");
+            if (!name.startsWith("get")) {
+                if (data == null) {
+                    return new BaseResponse<>(ResponseCode.Failure, message + "失败");
+                } else {
+                    ResponseCode.Success.setMessage(message + "成功");
+                    return new BaseResponse<>(ResponseCode.Success, data);
+                }
             }
         }
-        return new BaseResponse<>(data);
+        return new BaseResponse<>(ResponseCode.Success, data);
     }
 }

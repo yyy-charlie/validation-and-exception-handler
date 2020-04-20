@@ -19,13 +19,9 @@ public class BaseResponse<T> {
 
     private T data;
 
-    public BaseResponse(ResponseCode responseCode,String message) {
+    public BaseResponse(ResponseCode responseCode, String message) {
         this.code = responseCode.getCode();
         this.message = message;
-    }
-
-    public BaseResponse(T data) {
-        this(ResponseCode.Success, data);
     }
 
     public BaseResponse(ResponseCode responseCode, T data) {

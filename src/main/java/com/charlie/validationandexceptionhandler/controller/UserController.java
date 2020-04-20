@@ -31,8 +31,7 @@ public class UserController {
     @RequestMapping("register")
     public User registerUser(@RequestBody @Validated(User.Register.class) User user) {
         request.setAttribute(Const.RETURN_MESSAGE, "新增用户信息");
-        return null;
-//        return userService.addUser(user);
+        return userService.addUser(user);
     }
 
     @RequestMapping("update")
@@ -44,6 +43,7 @@ public class UserController {
     @RequestMapping("delete")
     public Boolean deleteUser(@RequestBody @Validated(User.Update.class) User user) {
         request.setAttribute(Const.RETURN_MESSAGE, "删除用户");
+        //调用service省略
         return false;
     }
 
