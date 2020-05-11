@@ -12,8 +12,9 @@ import org.springframework.http.HttpStatus;
  */
 @Getter
 public enum ResponseCode {
-    Success(200, "操作成功"),
-    Failure(500, "操作失败"),
+    SUCCESS(200, "成功"),
+    FAILURE(500, "失败"),
+    EMPTY(412, "为空"),
     VALIDATE_FAILED(412,"参数校验失败");
 
     private int code;

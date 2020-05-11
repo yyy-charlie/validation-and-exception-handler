@@ -1,8 +1,9 @@
 package com.charlie.validationandexceptionhandler.config;
 
 import com.charlie.validationandexceptionhandler.enums.ResponseCode;
-import com.charlie.validationandexceptionhandler.exception.APIException;
+import com.charlie.validationandexceptionhandler.exception.ApiException;
 import com.charlie.validationandexceptionhandler.vo.BaseResponse;
+import com.charlie.validationandexceptionhandler.vo.TableResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.MethodParameter;
@@ -13,7 +14,6 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
 /**
@@ -41,32 +41,40 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice {
         if (String.class.equals(methodParameter.getGenericParameterType())) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                ResponseCode.Success.setMessage(message + "成功");
-                return objectMapper.writeValueAsString(new BaseResponse<>(ResponseCode.Success, data));
+                ResponseCode.SUCCESS.setMessage(message + "成功");
+                return objectMapper.writeValueAsString(new BaseResponse<>(ResponseCode.SUCCESS, data));
             } catch (JsonProcessingException e) {
-                throw new APIException("返回String类型错误");
+                throw new ApiException("返回String类型错误");
             }
             //布尔类型，返回true操作成功，返回false操作失败
         } else if (Boolean.class.equals(methodParameter.getGenericParameterType())) {
             if (Boolean.TRUE.equals(data)) {
-                return new BaseResponse<>(ResponseCode.Success, message + "成功");
+                return new BaseResponse<>(ResponseCode.SUCCESS, message + "成功");
             } else {
-                return new BaseResponse<>(ResponseCode.Failure, message + "失败");
+                return new BaseResponse<>(ResponseCode.FAILURE, message + "失败");
             }
         }
         Method method = methodParameter.getMethod();
-        //不是get操作的方法返回null，该操作失败
+        BaseResponse baseResponse;
         if (method != null) {
             String name = method.getName();
-            if (!name.startsWith("get")) {
-                if (data == null) {
-                    return new BaseResponse<>(ResponseCode.Failure, message + "失败");
+            if (data == null) {
+                if (name.startsWith("get")) {
+                    baseResponse = new BaseResponse<>(ResponseCode.EMPTY, message + "为空");
                 } else {
-                    ResponseCode.Success.setMessage(message + "成功");
-                    return new BaseResponse<>(ResponseCode.Success, data);
+                    //不是get操作的方法返回null，该操作失败
+                    baseResponse = new BaseResponse<>(ResponseCode.FAILURE, message + "失败");
                 }
+                //返回表格对象
+            } else if (data instanceof TableResult) {
+                baseResponse = new BaseResponse<>(ResponseCode.SUCCESS, ((TableResult) data).getData());
+            } else {
+                ResponseCode.SUCCESS.setMessage(message + "成功");
+                baseResponse = new BaseResponse<>(ResponseCode.SUCCESS, data);
             }
+        } else {
+            baseResponse = new BaseResponse<>(ResponseCode.FAILURE, data);
         }
-        return new BaseResponse<>(ResponseCode.Success, data);
+        return baseResponse;
     }
 }

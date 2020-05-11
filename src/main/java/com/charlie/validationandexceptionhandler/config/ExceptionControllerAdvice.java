@@ -1,14 +1,12 @@
 package com.charlie.validationandexceptionhandler.config;
 
 import com.charlie.validationandexceptionhandler.enums.ResponseCode;
-import com.charlie.validationandexceptionhandler.exception.APIException;
+import com.charlie.validationandexceptionhandler.exception.ApiException;
 import com.charlie.validationandexceptionhandler.vo.BaseResponse;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import javax.xml.ws.Response;
 
 /**
  * @author ycn
@@ -20,9 +18,9 @@ import javax.xml.ws.Response;
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
 
-    @ExceptionHandler(APIException.class)
-    public BaseResponse<String> apiExceptionHandler(APIException e) {
-        return new BaseResponse<>(ResponseCode.Failure, e.getMessage());
+    @ExceptionHandler(ApiException.class)
+    public BaseResponse<String> apiExceptionHandler(ApiException e) {
+        return new BaseResponse<>(ResponseCode.FAILURE, e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

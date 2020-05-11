@@ -4,6 +4,7 @@ import com.charlie.validationandexceptionhandler.common.Const;
 import com.charlie.validationandexceptionhandler.entity.User;
 import com.charlie.validationandexceptionhandler.service.UserService;
 import com.charlie.validationandexceptionhandler.vo.BaseResponse;
+import com.charlie.validationandexceptionhandler.vo.TableResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -48,11 +49,11 @@ public class UserController {
     }
 
     @RequestMapping("getByCondition")
-    public List<User> getUserByCondition(@RequestBody User user) {
+    public TableResult getUserByCondition(@RequestBody User user) {
         request.setAttribute(Const.RETURN_MESSAGE, "根据条件获取用户信息");
         List<User> users = new ArrayList<>();
         users.add(user);
-        return users;
+        return new TableResult<>(1, users);
     }
 
 }
